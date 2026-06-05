@@ -122,15 +122,35 @@ def set_environment(seed: int = 2023):
     os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+
+def resolve_device(device_str: str) -> str:
+    """Fallback về MPS (Apple Silicon) hoặc CPU nếu CUDA không có."""
+    if "cuda" in device_str:
+        if torch.cuda.is_available():
+            try:
+                parts = device_str.split(":")
+                if len(parts) > 1 and int(parts[1]) >= torch.cuda.device_count():
+                    print(f"  [Device] '{device_str}' ngoài phạm vi, dùng cuda:0")
+                    return "cuda:0"
+            except ValueError:
+                return "cuda:0"
+            return device_str
+        if torch.backends.mps.is_available():
+            print("  [Device] Không có CUDA, dùng MPS (Apple Silicon)")
+            return "mps"
+        print("  [Device] Không có CUDA/MPS, dùng CPU")
+        return "cpu"
+    return device_str
 
 
 def get_models(cfg: MainConfig):
     if not cfg.model.ensemble and len(cfg.model.backbone) > 1:
         raise ValueError("ensemble=False nhưng có nhiều hơn 1 backbone")
-
     models = []
     for name in cfg.model.backbone:
         if name not in BACKBONE_MAP:
