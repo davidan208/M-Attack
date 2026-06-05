@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, List, Tuple
 from hydra.core.config_store import ConfigStore
 
 
@@ -48,14 +48,11 @@ class ModelConfig:
     input_res: int = 336
     use_source_crop: bool = True
     use_target_crop: bool = True
-    crop_scale: tuple = (0.5, 0.9)
+    crop_scale: Tuple[float, float] = (0.5, 0.9)
     ensemble: bool = True
     device: str = "cuda:0"  # Can be "cpu", "cuda:0", "cuda:1", etc.
-    backbone: list = (
-        "L336",
-        "B16",
-        "B32",
-        "Laion",
+    backbone: List[str] = field(
+        default_factory=lambda: ["L336", "B16", "B32", "Laion"]
     )  # List of models to use: L336, B16, B32, Laion
 
 
@@ -63,11 +60,11 @@ class ModelConfig:
 class MainConfig:
     """Main configuration combining all sub-configs"""
 
-    data: DataConfig = DataConfig()
-    optim: OptimConfig = OptimConfig()
-    model: ModelConfig = ModelConfig()
-    wandb: WandbConfig = WandbConfig()
-    blackbox: BlackboxConfig = BlackboxConfig()
+    data: DataConfig = field(default_factory=DataConfig)
+    optim: OptimConfig = field(default_factory=OptimConfig)
+    model: ModelConfig = field(default_factory=ModelConfig)
+    wandb: WandbConfig = field(default_factory=WandbConfig)
+    blackbox: BlackboxConfig = field(default_factory=BlackboxConfig)
     attack: str = "fgsm"  # can be [fgsm, mifgsm, pgd]
 
 
@@ -76,9 +73,13 @@ class MainConfig:
 class Ensemble3ModelsConfig(MainConfig):
     """Configuration for ensemble_3models.py"""
 
-    data: DataConfig = DataConfig(batch_size=1)
-    model: ModelConfig = ModelConfig(
-        use_source_crop=True, use_target_crop=True, backbone=["B16", "B32", "Laion"]
+    data: DataConfig = field(default_factory=lambda: DataConfig(batch_size=1))
+    model: ModelConfig = field(
+        default_factory=lambda: ModelConfig(
+            use_source_crop=True,
+            use_target_crop=True,
+            backbone=["B16", "B32", "Laion"],
+        )
     )
 
 
