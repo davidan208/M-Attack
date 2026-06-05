@@ -19,4 +19,4 @@ torchvision
 tqdm
 wandb
 clip @ git+https://github.com/openai/CLIP.git
-transformers=4.49.0
+transformers==4.49.0
