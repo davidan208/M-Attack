@@ -20,13 +20,10 @@ class EnsembleFeatureExtractor(BaseFeatureExtractor):
         self.extractors = nn.ModuleList(extractors)
 
     def forward(self, x: Tensor) -> Tensor:
-        # features = []
-        # for model in self.extractors:
-        #     features.append(model(x).squeeze())
-        # features = torch.cat(features, dim=0)
-        features = {}  # 不拼接，改为字典存储
+        features = {}
         for i, model in enumerate(self.extractors):
-            features[i] = model(x).squeeze()
+            # Giữ nguyên shape [B, dim] — không squeeze để hỗ trợ batch_size > 1
+            features[i] = model(x)
         return features
 
 

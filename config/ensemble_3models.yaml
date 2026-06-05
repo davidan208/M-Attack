@@ -1,14 +1,15 @@
 # Configuration for ensemble_3models.py
+# Default: batch_size=10, 1000 ảnh, numeric order
 
 defaults:
   - _self_
 
 data:
-  batch_size: 1
-  num_samples: 100
+  batch_size: 10
+  num_samples: 1000
   output: "./LAT"
-  cle_data_path: "resources/images/bigscale"
-  tgt_data_path: "resources/images/target_images"
+  cle_data_path: "resources/images/bigscale_1000"
+  tgt_data_path: "resources/images/target_images_1000"
 
 optim:
   alpha: 1.0
@@ -19,10 +20,10 @@ model:
   input_res: 224
   use_source_crop: true
   use_target_crop: true
-  crop_scale: [0.5, 0.9] 
+  crop_scale: [0.5, 0.9]
   ensemble: true
-  device: "cuda:0"  # Using GPU 1
-  backbone: ["B16", "B32", "Laion"]  # Use all models in ensemble
+  device: "cuda:0"
+  backbone: ["B16", "B32", "Laion"]
 
 wandb:
   project: "local_adversarial_attack"
